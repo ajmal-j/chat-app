@@ -3,17 +3,22 @@ import { ArrowRight } from "lucide-react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import "./logIn.css";
+import { useNavigate} from 'react-router-dom'
 
 export function LogIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const navigate=useNavigate()
+
   function handleLogIn() {
     let state = true;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    let toastId;
     if (!emailRegex.test(email)) {
       showError("Enter a valid email");
       state = false;
+      return;
     }
     if (password.length < 8) {
       showError("Password is too short");
@@ -24,17 +29,29 @@ export function LogIn() {
       password: password,
     };
     if (!state) return;
+    toastId = toast.loading("Loading...");
     axios
       .post("/api/user/login", data)
       .then(({ data }) => {
-        console.log(data);
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 500);
+          showSuccess("LogIn successful");
+          localStorage.setItem('userData',JSON.stringify(data));
+          navigate('/chat')
       })
       .catch((error) => {
-        console.log(error);
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 500);
+        showError(error.response.data.message);
       });
   }
   const showError = (message) => {
     toast.error(message);
+  };
+  const showSuccess = (message) => {
+    toast.success(message);
   };
   const handleSubmit = (e) => {
     e.preventDefault();

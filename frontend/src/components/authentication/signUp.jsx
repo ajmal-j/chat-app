@@ -2,40 +2,73 @@ import React, { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import "./signUp.css";
+import axios from "axios";
+import { useNavigate} from 'react-router-dom'
 
 export function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
   const [name, setName] = useState("");
+  const [image, setImage] = useState("");
   const [show, setShow] = useState(false);
+  const [showConfirmPass, setShowOnConfirmPass] = useState(false);
+  const navigate=useNavigate()
 
   function handleLogIn() {
     let state = true;
+    let toastId;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (name.length < 5) {
+      showError("Enter a valid name");
+      state = false;
+      return;
+    }
     if (!emailRegex.test(email)) {
       showError("Enter a valid email");
       state = false;
+      return;
     }
     if (password.length < 8) {
       showError("Password is too short");
       state = false;
+      return;
+    }
+    if (password !== confirmPass) {
+      showError("Password not matches");
+      state = false;
+      return;
     }
     const data = {
       email: email,
       password: password,
+      name: name,
+      image: image,
     };
     if (!state) return;
+    toastId = toast.loading("Loading...");
     axios
-      .post("/api/user/login", data)
+      .post("/api/user/signUp", data)
       .then(({ data }) => {
-        console.log(data);
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 500);
+          showSuccess("Registration success");
+          localStorage.setItem('userData',JSON.stringify(data));
+          navigate('/chat')
       })
       .catch((error) => {
-        console.log(error);
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 500);
+        showError(error.response.data.message);
       });
   }
   const showError = (message) => {
     toast.error(message);
+  };
+  const showSuccess = (message) => {
+    toast.success(message);
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -74,14 +107,14 @@ export function SignUp() {
                   </div>
                 </div>
                 <div>
-                  <div class="grid w-full mb-3 items-center">
-                    <label class="text-sm text-gray-400 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  <div className="grid w-full mb-3 items-center">
+                    <label className="text-base font-medium text-gray-900 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       Picture
                     </label>
                     <input
                       id="picture"
                       type="file"
-                      class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
+                      className="flex mt-2 h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
                     ></input>
                   </div>
                 </div>
@@ -128,9 +161,39 @@ export function SignUp() {
                     </span>
                   </div>
                 </div>
+                <div style={{ marginTop: "-5px" }}>
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="ConfirmPassword"
+                      className="text-base font-medium text-gray-900"
+                    >
+                      {" "}
+                      Confirm Password{" "}
+                    </label>
+                  </div>
+                  <div className="mt-2">
+                    <input
+                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                      type={showConfirmPass ? "text" : "password"}
+                      placeholder="Password"
+                      onChange={(e) => setConfirmPass(e.target.value)}
+                      id="ConfirmPassword"
+                    ></input>
+                    <span className="showAndHideButton">
+                      <span
+                        onClick={() =>
+                          setShowOnConfirmPass(showConfirmPass ? false : true)
+                        }
+                      >
+                        {showConfirmPass ? "hide" : "show"}{" "}
+                      </span>
+                    </span>
+                  </div>
+                </div>
                 <div>
                   <button
                     type="button"
+                    onClick={() => handleLogIn()}
                     className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                   >
                     Create Account <ArrowRight className="ml-2" size={16} />

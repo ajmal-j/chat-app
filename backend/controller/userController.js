@@ -1,12 +1,15 @@
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const generateToken = require("../config/generateToken");
+const errorCatcher = require("../utils/errorCatcher");
 
-const logIn =async (req, res) => {
- try {
+const logIn = errorCatcher(async (req, res) => {
   const { email, password } = req.body;
-  const user= await User.findOne({email})
-  if(user && (await user.matchPassword(password)) ){
+  const newUser = await User.findOne({ email });
+  if (!newUser) {
+    throw new Error("User Not Fount");
+  }
+  if (newUser && (await newUser.matchPassword(password))) {
     res.status(201).json({
       _id: newUser._id,
       name: newUser.name,
@@ -14,46 +17,54 @@ const logIn =async (req, res) => {
       image: newUser.image,
       token: generateToken(newUser._id),
     });
-  }else{
-    throw new Error("Error while logIn");    
+  } else {
+    throw new Error("Incorrect password");
   }
- } catch (error) {
-  
- }
-};
-const signUp = async (req, res) => {
-  try {
-    const { email, password, name, image } = req.body;
-    if (!email || !password || !name) {
-      throw new Error("Please Fill The Fields");
-    }
-    const user = await User.findOne({ email });
-    if (user) {
-      throw new Error("User already exist");
-    }
-    const newUser = await User.create({
-      name,
-      email,
-      password,
-      image,
+});
+
+const signUp = errorCatcher(async (req, res) => {
+  const { email, password, name, image } = req.body;
+  if (!email || !password || !name) {
+    throw new Error("Please Fill The Fields");
+  }
+  const user = await User.findOne({ email });
+  if (user) {
+    throw new Error("User already exist");
+  }
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    image,
+  });
+  if (newUser) {
+    res.status(201).json({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      image: newUser.image,
+      token: generateToken(newUser._id),
     });
-    if (newUser) {
-      res.status(201).json({
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        image: newUser.image,
-        token: generateToken(newUser._id),
-      });
-    } else {
-      throw new Error("Error while creating user");
-    }
-  } catch (error) {
-    console.log(error);
+  } else {
+    throw new Error("Error while creating user");
   }
-};
+});
+const getUser = errorCatcher(async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
+});
 
 module.exports = {
   logIn,
   signUp,
+  getUser
 };

@@ -6,11 +6,14 @@ const data = require("./data");
 const cors = require("cors");
 const errorHandler = require("./middlewares/errorHandler");
 const notFount = require("./middlewares/errorHandler");
-const user = require("./routes/useRouter");
+const userRoutes = require("./routes/useRouter");
 app.use(express.json());
 const connect = require("./config/database");
+const chatRoutes = require("./routes/chatRoutes");
+
 app.use(cors());
-app.use('/user',user);
+app.use('/user',userRoutes);
+app.use('/chat',chatRoutes);
 connect();
 
 app.get("/", (req, res) => {

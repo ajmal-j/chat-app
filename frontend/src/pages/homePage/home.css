@@ -11,3 +11,9 @@ body{
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.app{
+    display: flex;
+    justify-content: center;
+    place-items: center;
+}

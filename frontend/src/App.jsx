@@ -2,14 +2,17 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import { Home } from "./pages/homePage/home";
 import { Chat } from "./pages/chat/chat";
+import { ChatProvider } from "./context/chatProvider.jsx";
 
 function App() {
   return (
     <div className="App">
-      <Routes>
-        <Route path="/" Component={Home} />
-        <Route path="/chat" Component={Chat} />
-      </Routes>
+      <ChatProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/chats" element={<Chat />} />
+        </Routes>
+      </ChatProvider>
     </div>
   );
 }

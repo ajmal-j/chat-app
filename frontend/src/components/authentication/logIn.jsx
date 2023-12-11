@@ -38,7 +38,7 @@ export function LogIn() {
         }, 500);
           showSuccess("LogIn successful");
           localStorage.setItem('userData',JSON.stringify(data));
-          navigate('/chat')
+          navigate('/chats')
       })
       .catch((error) => {
         setTimeout(() => {

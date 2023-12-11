@@ -13,16 +13,14 @@ const chatRoutes = require("./routes/chatRoutes");
 
 app.use(cors());
 app.use('/user',userRoutes);
-app.use('/chat',chatRoutes);
+app.use('/chats',chatRoutes);
 connect();
 
 app.get("/", (req, res) => {
   console.log("yes");
   res.send("running");
 });
-app.get("/chat", (req, res) => {
-  res.send(data);
-});
+
 app.use(notFount);
 app.use(errorHandler);
 app.listen(port, () => {

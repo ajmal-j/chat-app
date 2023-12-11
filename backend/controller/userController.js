@@ -14,7 +14,7 @@ const logIn = errorCatcher(async (req, res) => {
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-      image: newUser.image,
+      image: newUser.pic,
       token: generateToken(newUser._id),
     });
   } else {
@@ -42,7 +42,7 @@ const signUp = errorCatcher(async (req, res) => {
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-      image: newUser.image,
+      image: newUser.pic,
       token: generateToken(newUser._id),
     });
   } else {
@@ -50,6 +50,7 @@ const signUp = errorCatcher(async (req, res) => {
   }
 });
 const getUser = errorCatcher(async (req, res) => {
+  console.log('hahah');
   const keyword = req.query.search
     ? {
         $or: [

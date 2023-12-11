@@ -1,0 +1,12 @@
+.signUpContainer{
+    background: #ffffff9f;
+    border-radius: 20px;
+    max-width: fit-content;
+    margin:20px auto;
+    box-shadow: 0px 0px 15px rgba(102, 102, 102, 0.394)
+}
+.showAndHideButton{
+    padding: 5px;
+    display: flex;
+    justify-content: end;
+}
